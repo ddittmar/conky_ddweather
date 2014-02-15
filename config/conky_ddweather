@@ -1,0 +1,51 @@
+update_interval 1
+
+double_buffer yes
+no_buffers yes
+
+use_xft yes
+xftfont Ubuntu:size=10
+override_utf8_locale yes
+text_buffer_size 2048
+
+own_window_class Conky
+own_window yes
+own_window_type override
+own_window_transparent yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+
+alignment bottom_left
+gap_x 0
+gap_y 0
+minimum_size 575 237
+maximum_width 575
+
+default_bar_size 60 8
+
+draw_shades no
+
+# Defining colors
+default_color FFFFFF
+# Shades of Gray
+color1 DDDDDD
+color2 AAAAAA
+color3 888888
+# Orange
+color4 EF5A29
+
+lua_load ./ddweather.lua
+lua_draw_hook_pre fetch_current_weather
+
+TEXT
+${image ./img/background.png -p 0,0 -s 575x237}
+${lua_parse weather_icon}
+
+
+${font Ubuntu:size=10,weight:bold}${goto 230}${color4}${lua city}:${alignr 70}${lua weather description}
+${voffset 5}${font Ubuntu:size=9,weight:normal}\
+${goto 230}${color1}Temperatur:${alignr 70}${color2}${lua main temp} °C
+${goto 230}${color1}Luftfeuchtigkeit:${alignr 70}${color2}${lua main humidity} %
+${goto 230}${color1}Luftdruck:${alignr 70}${color2}${lua main pressure} hPa
+${goto 230}${color1}Windgeschwindigkeit:${alignr 70}${color2}${lua wind speed} m/s
+${goto 230}${color1}Windrichtung:${alignr 70}${color2}${lua wind deg} °
+${goto 230}${color1}Bewölkung:${alignr 70}${color2}${lua clouds} %
