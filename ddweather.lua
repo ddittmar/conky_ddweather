@@ -11,6 +11,17 @@ JSON = require ("dkjson")
 
 
 -------------------------------------------------------------------------------
+--                                                openweathermap.org api params
+api_params = {
+    version = 2.5,
+    city = 'Hamburg,de',
+    units = 'metric',
+    lang = 'de',
+    app_id = '1dc64bd5b9c3f038eefed54905a1c416'
+}
+
+
+-------------------------------------------------------------------------------
 --                                                           string:starts_with
 -- checks if a string starts with another string
 --
@@ -23,11 +34,19 @@ end -- string:starts_with
 --                                                        fetch_current_weather
 -- fetches the current weather conditions into a global table
 --
-function fetch_current_weather() 
-    local file = io.popen('/usr/bin/curl "http://api.openweathermap.org/data/2.5/weather?q=Hamburg,de&units=metric&lang=de&APPID=1dc64bd5b9c3f038eefed54905a1c416" -s -S -o -')
+function fetch_current_weather()
+    local url = string.format("http://api.openweathermap.org/data/%s/weather?q=%s&units=%s&lang=%s&APPID=%s",
+        api_params['version'],
+        api_params['city'],
+        api_params['units'],
+        api_params['lang'],
+        api_params['app_id']) 
+    local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
     local output = file:read('*all')
     file:close()
     print(output) --> debug
+
+    current_weather = nil
     if (output:starts_with('{')) then
         local obj, pos, err = JSON.decode (output, 1, nil) -- parse json
         if err then
@@ -40,28 +59,29 @@ end -- fetch_current_weather
 
 
 -------------------------------------------------------------------------------
---                                                    conky_weather_description
--- returns the weather description
+--                                                    get_current_weather_value
+-- helper function to navigate the current_weather table
 --
-function conky_weather_description()
-    if (current_weather) then
-        return current_weather['weather'][1]['description']
-    else
-        return "NA"
+function get_current_weather_value( ... )
+    local result = current_weather
+    for _,v in ipairs(arg) do
+        if (result) then
+            result = result[v]            
+        end
     end
-end
+    return result
+end -- get_current_weather_value
+
 
 -------------------------------------------------------------------------------
 --                                                                   conky_city
 -- returns the city
 --
 function conky_city()
-    if (current_weather) then
-        return current_weather['name']
-    else
-        return "NA"
-    end
-end
+    local value = get_current_weather_value('name')
+    value = value and value or "NA"
+    return value
+end -- conky_city
 
 
 -------------------------------------------------------------------------------
@@ -69,12 +89,10 @@ end
 -- returns one of the main attributes
 --
 function conky_main(param)
-    if (current_weather) then
-        return current_weather['main'][param]
-    else
-        return "NA"
-    end
-end
+    local value = get_current_weather_value('main', param)
+    value = value and value or "NA"
+    return value
+end -- conky_main
 
 
 -------------------------------------------------------------------------------
@@ -82,12 +100,10 @@ end
 -- returns one of the weather attributes
 --
 function conky_weather(param)
-    if (current_weather and current_weather['weather']) then
-        return current_weather['weather'][1][param]
-    else
-        return "NA"
-    end
-end
+    local value = get_current_weather_value('weather', 1, param)
+    value = value and value or "NA"
+    return value
+end -- conky_weather
 
 
 -------------------------------------------------------------------------------
@@ -95,25 +111,21 @@ end
 -- returns one of the wind attributes
 --
 function conky_wind(param)
-    if (current_weather) then
-        return current_weather['wind'][param]
-    else
-        return "NA"
-    end
-end
+    local value = get_current_weather_value('wind', param)
+    value = value and value or "NA"
+    return value
+end -- conky_wind
 
 
 -------------------------------------------------------------------------------
 --                                                                 conky_clouds
 -- returns the clouds value
 --
-function conky_clouds(param)
-    if (current_weather) then
-        return current_weather['clouds']['all']
-    else
-        return "NA"
-    end
-end
+function conky_clouds()
+    local value = get_current_weather_value('clouds', 'all')
+    value = value and value or "NA"
+    return value
+end -- conky_clouds
 
 
 -------------------------------------------------------------------------------
@@ -121,12 +133,10 @@ end
 -- returns the weather icon conky format string
 --
 function conky_weather_icon()
-    if (current_weather and current_weather['weather']) then
-        return string.format("${image ./img/%s.png -p 65,50 -s 128x128 -n}", current_weather['weather'][1]['icon'])
-    else
-        return "${image ./img/na.png -p 65,50 -s 128x128 -n}"
-    end
-end
+    local value = get_current_weather_value('weather', 1, 'icon')
+    value = value and value or "na"
+    return string.format("${image ./img/%s.png -p 65,50 -s 128x128 -n}", value)
+end -- conky_weather_icon
 
 
 -------------------------------------------------------------------------------
