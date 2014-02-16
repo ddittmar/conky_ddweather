@@ -48,4 +48,5 @@ ${goto 230}${color1}Luftfeuchtigkeit:${alignr 75}${color2}${lua main humidity} %
 ${goto 230}${color1}Luftdruck:${alignr 75}${color2}${lua main pressure} hPa
 ${goto 230}${color1}Windgeschwindigkeit:${alignr 75}${color2}${lua wind speed} m/s
 ${goto 230}${color1}Windrichtung:${alignr 75}${color2}${lua wind deg} °
-${goto 230}${color1}Bewölkung:${alignr 75}${color2}${lua clouds} %
+${goto 230}${font Ubuntu:size=9,weight:normal}${color1}Bewölkung:${alignr 75}${color2}${lua clouds} %
+${goto 83}${color3}${font Ubuntu:size=8,weight:normal}openweathermap.org

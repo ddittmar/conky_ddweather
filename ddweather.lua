@@ -24,7 +24,7 @@ end -- string:starts_with
 -- fetches the current weather conditions into a global table
 --
 function fetch_current_weather() 
-    local file = io.popen('/usr/bin/curl "http://api.openweathermap.org/data/2.5/weather?q=Hamburg,de&units=metric&lang=de" -s -S -o -')
+    local file = io.popen('/usr/bin/curl "http://api.openweathermap.org/data/2.5/weather?q=Hamburg,de&units=metric&lang=de&APPID=1dc64bd5b9c3f038eefed54905a1c416" -s -S -o -')
     local output = file:read('*all')
     file:close()
     print(output) --> debug
@@ -122,9 +122,9 @@ end
 --
 function conky_weather_icon()
     if (current_weather) then
-        return string.format("${image ./img/%s.png -p 65,55 -s 128x128 -n}", current_weather['weather'][1]['icon'])
+        return string.format("${image ./img/%s.png -p 65,50 -s 128x128 -n}", current_weather['weather'][1]['icon'])
     else
-        return "${image ./img/na.png -p 65,55 -s 128x128 -n}"
+        return "${image ./img/na.png -p 65,50 -s 128x128 -n}"
     end
 end
 
