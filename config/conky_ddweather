@@ -43,10 +43,10 @@ ${lua_parse weather_icon}
 
 ${font Ubuntu:size=10,weight:bold}${goto 230}${color4}${lua city}:${alignr 75}${lua weather description}
 ${voffset 5}${font Ubuntu:size=9,weight:normal}\
-${goto 230}${color1}Temperatur:${alignr 75}${color2}${lua main temp} °C
-${goto 230}${color1}Luftfeuchtigkeit:${alignr 75}${color2}${lua main humidity} %
-${goto 230}${color1}Luftdruck:${alignr 75}${color2}${lua main pressure} hPa
-${goto 230}${color1}Windgeschwindigkeit:${alignr 75}${color2}${lua wind speed} m/s
-${goto 230}${color1}Windrichtung:${alignr 75}${color2}${lua wind deg} °
-${goto 230}${font Ubuntu:size=9,weight:normal}${color1}Bewölkung:${alignr 75}${color2}${lua clouds} %
+${goto 230}${color1}Temperatur:${alignr 75}${color2}${lua main temp 1} °C
+${goto 230}${color1}Luftfeuchtigkeit:${alignr 75}${color2}${lua main humidity 0} %
+${goto 230}${color1}Luftdruck:${alignr 75}${color2}${lua main pressure 2} hPa
+${goto 230}${color1}Windgeschwindigkeit:${alignr 75}${color2}${lua wind speed 1} m/s
+${goto 230}${color1}Windrichtung:${alignr 75}${color2}${lua wind deg 0} °
+${goto 230}${font Ubuntu:size=9,weight:normal}${color1}Bewölkung:${alignr 75}${color2}${lua clouds 0} %
 ${goto 82}${color3}${font Ubuntu:size=8,weight:normal}openweathermap.org

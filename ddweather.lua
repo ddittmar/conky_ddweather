@@ -31,6 +31,36 @@ end -- string:starts_with
 
 
 -------------------------------------------------------------------------------
+--                                                                   math.round
+-- rounds 'num' to (optional) 'idp' decimal places
+--
+function math.round(num, idp)
+    if idp and idp>0 then
+        local mult = 10^idp
+        return math.floor(num * mult + 0.5) / mult
+    end
+    return math.floor(num + 0.5)
+end -- math.round
+
+
+-------------------------------------------------------------------------------
+--                                                                  round_value
+-- a guard function ... rounds 'value' to (optional) 'idp' decimal places
+--
+function round_value(value, idp)
+    -- idp string guard
+    if (idp and type(idp) == 'string') then
+        idp = tonumber(idp)
+    end
+    -- value string guard
+    if (idp and value and (type(value) == 'number')) then
+        return math.round(value, idp)
+    end
+    return value --> no rounding
+end -- round_value
+
+
+-------------------------------------------------------------------------------
 --                                                        fetch_current_weather
 -- fetches the current weather conditions into a global table
 --
@@ -88,9 +118,9 @@ end -- conky_city
 --                                                                   conky_main
 -- returns one of the main attributes
 --
-function conky_main(param)
+function conky_main(param, idp)
     local value = get_current_weather_value('main', param)
-    value = value and value or "NA"
+    value = value and round_value(value, idp) or "NA"
     return value
 end -- conky_main
 
@@ -99,9 +129,9 @@ end -- conky_main
 --                                                                conky_weather
 -- returns one of the weather attributes
 --
-function conky_weather(param)
+function conky_weather(param, idp)
     local value = get_current_weather_value('weather', 1, param)
-    value = value and value or "NA"
+    value = value and round_value(value, idp) or "NA"
     return value
 end -- conky_weather
 
@@ -110,9 +140,9 @@ end -- conky_weather
 --                                                                   conky_wind
 -- returns one of the wind attributes
 --
-function conky_wind(param)
+function conky_wind(param, idp)
     local value = get_current_weather_value('wind', param)
-    value = value and value or "NA"
+    value = value and round_value(value, idp) or "NA"
     return value
 end -- conky_wind
 
