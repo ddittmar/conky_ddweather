@@ -121,7 +121,7 @@ end
 -- returns the weather icon conky format string
 --
 function conky_weather_icon()
-    if (current_weather) then
+    if (current_weather and current_weather['weather']) then
         return string.format("${image ./img/%s.png -p 65,50 -s 128x128 -n}", current_weather['weather'][1]['icon'])
     else
         return "${image ./img/na.png -p 65,50 -s 128x128 -n}"
