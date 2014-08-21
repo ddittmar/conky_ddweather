@@ -61,17 +61,17 @@ end -- round_value
 
 
 -------------------------------------------------------------------------------
---                                                       fetch_current_location
--- fetches the current location into a global table
+--                                                           fetch_current_city
+-- fetches the current location and returns a openweathermap city string
 --
-function fetch_current_location()
+function fetch_current_city()
     local url = "http://conky-ddweather-location.appspot.com"
     local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
     local output = file:read('*all')
     file:close()
     print(output) --> debug
 
-    current_location = nil
+    local current_location = nil
     if (output:starts_with('{')) then
         local obj, pos, err = JSON.decode (output, 1, nil) -- parse json
         if err then
@@ -80,6 +80,12 @@ function fetch_current_location()
             current_location = obj
         end
     end
+
+    if (current_location) then --> if we have data
+        return string.format("%s,%s", current_location['city'], current_location['country'])
+    end
+    
+    return nil --> nothing
 end
 
 
@@ -88,11 +94,11 @@ end
 -- fetches the current weather conditions into a global table
 --
 function fetch_current_weather()
-    local city = api_params['city']
-    if (current_location) then
-        city = string.format("%s,%s", current_location['city'], current_location['country'])
+    local city = fetch_current_city()
+    if city == nil then 
+        city = api_params['city']
     end
-
+    
     local url = string.format("http://api.openweathermap.org/data/%s/weather?q=%s&units=%s&lang=%s&APPID=%s",
         api_params['version'],
         city,
@@ -208,7 +214,6 @@ function conky_fetch_current_weather()
     if updates >= 5 then
         local fetch = ((updates - 5) % 1800) == 0
         if fetch or not current_weather then
-            fetch_current_location()
             fetch_current_weather()
         end
     end
