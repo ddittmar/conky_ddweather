@@ -1,7 +1,6 @@
 # conky_ddweather
  
 Author: Dirk Dittmar  
-Version: v0.3  
 License: Distributed under the terms of GNU GPL version 2 or later  
 
 weather icons by MerlinTheRed:     http://www.deviantart.com/art/plain-weather-icons-157162192    
