@@ -12,13 +12,17 @@ JSON = require ("dkjson")
 
 -------------------------------------------------------------------------------
 --                                                openweathermap.org api params
-api_params = {
+API_PARAMS = {
     version = 2.5,
     city = 'Hamburg,de',
     units = 'metric',
     lang = 'de',
     app_id = '1dc64bd5b9c3f038eefed54905a1c416'
 }
+
+-------------------------------------------------------------------------------
+--                                                  update intervall in seconds
+UPDATE_INTERVAL = 1800
 
 
 -------------------------------------------------------------------------------
@@ -69,7 +73,7 @@ function fetch_current_city()
     local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
     local output = file:read('*all')
     file:close()
-    print(output) --> debug
+    print('fetch_current_city()', output) --> debug
 
     local current_location = nil
     if (output:starts_with('{')) then
@@ -94,21 +98,20 @@ end
 -- fetches the current weather conditions into a global table
 --
 function fetch_current_weather()
-    local city = fetch_current_city()
     if city == nil then 
-        city = api_params['city']
+        city = API_PARAMS['city']
     end
     
     local url = string.format("http://api.openweathermap.org/data/%s/weather?q=%s&units=%s&lang=%s&APPID=%s",
-        api_params['version'],
+        API_PARAMS['version'],
         city,
-        api_params['units'],
-        api_params['lang'],
-        api_params['app_id']) 
+        API_PARAMS['units'],
+        API_PARAMS['lang'],
+        API_PARAMS['app_id']) 
     local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
     local output = file:read('*all')
     file:close()
-    print(output) --> debug
+    print('fetch_current_weather()', output) --> debug
 
     current_weather = nil
     if (output:starts_with('{')) then
@@ -212,8 +215,12 @@ function conky_fetch_current_weather()
     
     local updates = tonumber(conky_parse('${updates}'))
     if updates >= 5 then
-        local fetch = ((updates - 5) % 1800) == 0
+        local fetch = ((updates - 5) % UPDATE_INTERVAL) == 0
         if fetch or not current_weather then
+            local fetch_city = ((updates - 5) % (UPDATE_INTERVAL * 4)) == 0
+            if fetch_city or not city then
+                city = fetch_current_city()
+            end
             fetch_current_weather()
         end
     end
