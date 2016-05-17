@@ -70,10 +70,11 @@ end -- round_value
 --
 function fetch_current_city()
     local url = "http://conky-ddweather-location.appspot.com"
+    print('fetch_current_city() from', url)
     local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
     local output = file:read('*all')
     file:close()
-    print('fetch_current_city()', output) --> debug
+    print('fetch_current_city() =>', output) --> debug
 
     local current_location = nil
     if (output:starts_with('{')) then
@@ -107,11 +108,12 @@ function fetch_current_weather()
         city,
         API_PARAMS['units'],
         API_PARAMS['lang'],
-        API_PARAMS['app_id']) 
+        API_PARAMS['app_id'])
+    print('fetch_current_weather() from', url)
     local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
     local output = file:read('*all')
     file:close()
-    print('fetch_current_weather()', output) --> debug
+    print('fetch_current_weather() =>', output) --> debug
 
     current_weather = nil
     if (output:starts_with('{')) then
