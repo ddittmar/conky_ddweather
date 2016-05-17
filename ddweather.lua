@@ -13,7 +13,7 @@ JSON = require ("dkjson")
 -------------------------------------------------------------------------------
 --                                                openweathermap.org api params
 API_PARAMS = {
-    version = 2.5,
+    version = '2.5',
     city = 'Hamburg,de',
     units = 'metric',
     lang = 'de',
@@ -89,7 +89,7 @@ function fetch_current_city()
     if (current_location) then --> if we have data
         return string.format("%s,%s", current_location['city'], current_location['country'])
     end
-    
+
     return nil --> nothing
 end
 
@@ -99,10 +99,10 @@ end
 -- fetches the current weather conditions into a global table
 --
 function fetch_current_weather()
-    if city == nil then 
+    if city == nil then
         city = API_PARAMS['city']
     end
-    
+
     local url = string.format("http://api.openweathermap.org/data/%s/weather?q=%s&units=%s&lang=%s&APPID=%s",
         API_PARAMS['version'],
         city,
@@ -135,7 +135,7 @@ function get_current_weather_value( ... )
     local result = current_weather
     for _,v in ipairs(arg) do
         if (result) then
-            result = result[v]            
+            result = result[v]
         end
     end
     return result
@@ -211,10 +211,10 @@ end -- conky_weather_icon
 -------------------------------------------------------------------------------
 --                                                  conky_fetch_current_weather
 function conky_fetch_current_weather()
-    if conky_window == nil then 
+    if conky_window == nil then
         return
     end
-    
+
     local updates = tonumber(conky_parse('${updates}'))
     if updates >= 5 then
         local fetch = ((updates - 5) % UPDATE_INTERVAL) == 0
