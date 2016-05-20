@@ -204,7 +204,7 @@ end -- conky_clouds
 function conky_weather_icon()
     local value = get_current_weather_value('weather', 1, 'icon')
     value = value and value or "na"
-    return string.format("${image ./img/%s.png -p 65,50 -s 128x128 -n}", value)
+    return string.format("${image ./img/%s.png -p 65,60 -s 128x128 -n}", 'na')
 end -- conky_weather_icon
 
 

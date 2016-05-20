@@ -40,7 +40,7 @@ TEXT
 ${image ./img/background.png -p 0,0 -s 575x237}
 ${lua_parse weather_icon}
 
-
+${voffset 7}${goto 90}${color3}${font Ubuntu:size=7:style=normal}openweathermap.org
 ${font Ubuntu:size=10:style=bold}${goto 230}${color4}${lua city}:${alignr 75}${lua weather description}
 ${voffset 7}${font Ubuntu:size=9:style=normal}\
 ${goto 230}${color1}Temperatur:${alignr 75}${color2}${lua main temp 1} °C
@@ -49,4 +49,3 @@ ${voffset 2}${goto 230}${color1}Luftdruck:${alignr 75}${color2}${lua main pressu
 ${voffset 2}${goto 230}${color1}Windgeschwindigkeit:${alignr 75}${color2}${lua wind speed 1} m/s
 ${voffset 2}${goto 230}${color1}Windrichtung:${alignr 75}${color2}${lua wind deg 0} °
 ${voffset 2}${goto 230}${font Ubuntu:size=9:style=normal}${color1}Bewölkung:${alignr 75}${color2}${lua clouds 0} %
-${voffset 5}${goto 90}${color3}${font Ubuntu:size=7:style=normal}openweathermap.org
