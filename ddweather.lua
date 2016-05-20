@@ -7,6 +7,7 @@
 --==============================================================================
 
 
+require 'cairo'
 JSON = require ("dkjson")
 
 
@@ -126,6 +127,7 @@ function fetch_current_weather()
     end
 end -- fetch_current_weather
 
+
 -------------------------------------------------------------------------------
 --                                                               fetch_forecast
 -- fetches the weather forecast into a global table
@@ -158,6 +160,7 @@ function fetch_forecast()
     end
 end -- fetch_forecast
 
+
 -------------------------------------------------------------------------------
 --                                                    get_current_weather_value
 -- helper function to navigate the current_weather table
@@ -171,6 +174,21 @@ function get_current_weather_value( ... )
     end
     return result
 end -- get_current_weather_value
+
+
+-------------------------------------------------------------------------------
+--                                                           get_forecast_value
+-- helper function to navigate the forecast table
+--
+function get_forecast_value( ... )
+    local result = forecast
+    for _,v in ipairs(arg) do
+        if (result) then
+            result = result[v]
+        end
+    end
+    return result
+end -- get_forecast_value
 
 
 -------------------------------------------------------------------------------
@@ -240,11 +258,28 @@ end -- conky_weather_icon
 
 
 -------------------------------------------------------------------------------
+--                                                                draw_forecast
+-- draw the forecast data
+--
+function draw_forecast()
+    print "draw_forecast()"
+    local cnt = get_forecast_value('cnt')
+    for i = 1, cnt do
+        -- local dt = 1get_forecast_value('list', i, 'dt')
+        -- TODO go on here
+    end
+end -- draw_forecast
+
+
+-------------------------------------------------------------------------------
 --                                                          conky_fetch_weather
 function conky_fetch_weather()
     if conky_window == nil then
         return
     end
+
+    local surface = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
+    local context = cairo_create(cs)
 
     local updates = tonumber(conky_parse('${updates}'))
     if updates >= 5 then
@@ -256,7 +291,11 @@ function conky_fetch_weather()
             end
             fetch_current_weather()
             fetch_forecast()
+            draw_forecast()
         end
     end
+
+    cairo_surface_destroy(surface)
+    cairo_destroy(context)
 
 end -- conky_fetch_weather
