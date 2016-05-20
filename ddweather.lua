@@ -209,8 +209,8 @@ end -- conky_weather_icon
 
 
 -------------------------------------------------------------------------------
---                                                  conky_fetch_current_weather
-function conky_fetch_current_weather()
+--                                                          conky_fetch_weather
+function conky_fetch_weather()
     if conky_window == nil then
         return
     end

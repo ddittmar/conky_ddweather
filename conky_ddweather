@@ -34,7 +34,7 @@ color3 888888
 color4 EF5A29
 
 lua_load ./ddweather.lua
-lua_draw_hook_pre fetch_current_weather
+lua_draw_hook_pre fetch_weather
 
 TEXT
 ${image ./img/background.png -p 0,0 -s 575x237}
