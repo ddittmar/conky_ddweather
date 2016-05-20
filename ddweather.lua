@@ -126,6 +126,37 @@ function fetch_current_weather()
     end
 end -- fetch_current_weather
 
+-------------------------------------------------------------------------------
+--                                                               fetch_forecast
+-- fetches the weather forecast into a global table
+--
+function fetch_forecast()
+    if city == nil then
+        city = API_PARAMS['city']
+    end
+
+    local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&APPID=%s",
+        API_PARAMS['version'],
+        city,
+        API_PARAMS['units'],
+        API_PARAMS['lang'],
+        API_PARAMS['app_id'])
+    print('fetch_forecast() from', url)
+    local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
+    local output = file:read('*all')
+    file:close()
+    print('fetch_forecast() =>', output) --> debug
+
+    forecast = nil
+    if (output:starts_with('{')) then
+        local obj, pos, err = JSON.decode (output, 1, nil)
+        if err then
+            print ("Error:", err)
+        else
+            forecast = obj
+        end
+    end
+end -- fetch_forecast
 
 -------------------------------------------------------------------------------
 --                                                    get_current_weather_value
@@ -204,7 +235,7 @@ end -- conky_clouds
 function conky_weather_icon()
     local value = get_current_weather_value('weather', 1, 'icon')
     value = value and value or "na"
-    return string.format("${image ./img/%s.png -p 65,60 -s 128x128 -n}", 'na')
+    return string.format("${image ./img/%s.png -p 65,60 -s 128x128 -n}", value)
 end -- conky_weather_icon
 
 
@@ -224,7 +255,8 @@ function conky_fetch_weather()
                 city = fetch_current_city()
             end
             fetch_current_weather()
+            fetch_forecast()
         end
     end
 
-end -- conky_fetch_current_weather
+end -- conky_fetch_weather
