@@ -258,16 +258,39 @@ end -- conky_weather_icon
 
 
 -------------------------------------------------------------------------------
+--                                                             forecast_min_max
+-- find min and max temp values in the forecast
+--
+function forecast_min_max_temp()
+    local min, max
+    local cnt = tonumber(get_forecast_value('cnt'))
+    for i = 1, cnt do
+        local temp = tonumber(get_forecast_value('list', i, 'main', 'temp'))
+        print(temp)
+        if not min or temp < min then
+            min = temp
+        end
+        if not max or temp > max then
+            max = temp
+        end
+    end
+    return min, max
+end
+
+
+-------------------------------------------------------------------------------
 --                                                                draw_forecast
 -- draw the forecast data
 --
 function draw_forecast()
     print "draw_forecast()"
+    print (forecast_min_max_temp())
+    --[[
     local cnt = get_forecast_value('cnt')
-    for i = 1, cnt do
-        -- local dt = 1get_forecast_value('list', i, 'dt')
-        -- TODO go on here
-    end
+    for i = 1, tonumber(cnt) do
+        local dt = get_forecast_value('list', i, 'dt')
+        print (os.date("%a %H", dt))
+    end]]
 end -- draw_forecast
 
 
