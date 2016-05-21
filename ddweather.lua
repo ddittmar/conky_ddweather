@@ -287,6 +287,7 @@ end -- conky_forecast_weather_icon
 function conky_forecast_wind_icon(idx, px, py)
     local value = get_forecast_value('list', tonumber(idx), 'wind', 'deg')
     value = value and value or "na"
+    -- TODO hier das korrekte Icon ausgeben
     return string.format("${image ./img/navigation.png -p %s,%s -s 16x16 -n}", px, py)
 end -- conky_forecast_weather_icon
 
@@ -312,6 +313,16 @@ end -- forecast_min_max_temp
 
 
 -------------------------------------------------------------------------------
+--                                                forecast_min_max_temp_rounded
+-- find min and max temp values in the forecast
+--
+function forecast_min_max_temp_rounded()
+    local min_temp, max_temp = forecast_min_max_temp()
+    return math.roundToMulti(min_temp, 5) - 5, math.roundToMulti(max_temp, 5) + 5
+end -- forecast_min_max_temp_rounded
+
+
+-------------------------------------------------------------------------------
 --                                                                  conky_hours
 -- return the hour value at the index as string
 --
@@ -320,17 +331,67 @@ function conky_forecast_hours(idx)
     return dt and os.date("%H", dt) or 'NA'
 end -- conky_hours
 
+-- TODO Doku
+function conky_forecast_min_temp()
+    if get_forecast_value('cnt') then
+        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        return min_temp
+    else
+        return 'NA'
+    end
+end
+
+-- TODO Doku
+function conky_forecast_max_temp()
+    if get_forecast_value('cnt') then
+        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        return max_temp
+    else
+        return 'NA'
+    end
+end
+
+
+-------------------------------------------------------------------------------
+--                                                                 rgb_to_r_g_b
+-- converts color in hexa to decimal
+--
+function rgb_to_r_g_b(colour, alpha)
+    return ((colour / 0x10000) % 0x100) / 255., ((colour / 0x100) % 0x100) / 255., (colour % 0x100) / 255., alpha
+end -- rgb_to_r_g_b
+
 
 -------------------------------------------------------------------------------
 --                                                           draw_forecast_grid
 -- draw the forecast data grid
 --
-function draw_forecast_grid()
-    local min_temp, max_temp = forecast_min_max_temp()
-    min_temp = math.roundToMulti(min_temp, 5) - 5
-    max_temp = math.roundToMulti(max_temp, 5) + 5
+function draw_temp_grid(cr)
+    cairo_set_line_width(cr, 1);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND)
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 1))
 
-    -- TODO draw the grid
+    -- top line
+    cairo_move_to(cr, 105, 245)
+    cairo_line_to(cr, 490, 245)
+    -- bottom line
+    cairo_move_to(cr, 105, 345)
+    cairo_line_to(cr, 490, 345)
+
+    cairo_stroke(cr)
+
+    local min, max = forecast_min_max_temp_rounded()
+    local diff = max - min
+    local num_lines = (diff / 5) - 1
+    local pix_diff = 100 / (diff / 5)
+
+    cairo_set_dash(cr, {5, 3}, 1, 1)
+    -- cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 0.5))
+    for i = pix_diff, (100 - pix_diff), pix_diff do
+        cairo_move_to(cr, 105, 345 - i)
+        cairo_line_to(cr, 490, 345 - i)
+    end
+
+    cairo_stroke(cr)
 end
 
 
@@ -338,9 +399,8 @@ end
 --                                                                draw_forecast
 -- draw the forecast data
 --
-function draw_forecast()
-    print "draw_forecast()"
-    draw_forecast_grid()
+function draw_forecast(cr)
+    draw_temp_grid(cr)
     -- TODO draw the temp graph
     -- TODO draw the rain graph
 end -- draw_forecast
@@ -359,7 +419,7 @@ function conky_fetch_weather()
         conky_window.visual,
         conky_window.width,
         conky_window.height)
-    local context = cairo_create(surface)
+    local cr = cairo_create(surface)
 
     local updates = tonumber(conky_parse('${updates}'))
     if updates >= 5 then
@@ -371,11 +431,11 @@ function conky_fetch_weather()
             end
             fetch_current_weather()
             fetch_forecast()
-            draw_forecast()
         end
+        draw_forecast(cr)
     end
 
     cairo_surface_destroy(surface)
-    cairo_destroy(context)
+    cairo_destroy(cr)
 
 end -- conky_fetch_weather
