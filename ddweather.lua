@@ -5,6 +5,7 @@
 --  License : Distributed under the terms of GNU GPL version 2 or later
 --
 --==============================================================================
+-- TODO <div>Icons made by <a href="http://www.flaticon.com/authors/madebyoliver" title="Madebyoliver">Madebyoliver</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
 
 
 require 'cairo'
@@ -46,6 +47,17 @@ function math.round(num, idp)
     end
     return math.floor(num + 0.5)
 end -- math.round
+
+
+-------------------------------------------------------------------------------
+--                                                            math.roundToMulti
+-- rounds 'num' so that the result is near to the multiple of 'x'
+--
+function math.roundToMulti(num, x)
+    local n = math.round(tonumber(num), 0)
+    local m = math.round(tonumber(x), 0)
+    return m * math.round(n/m, 0)
+end -- roundToMulti
 
 
 -------------------------------------------------------------------------------
@@ -137,7 +149,7 @@ function fetch_forecast()
         city = API_PARAMS['city']
     end
 
-    local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&APPID=%s",
+    local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&cnt=8&APPID=%s",
         API_PARAMS['version'],
         city,
         API_PARAMS['units'],
@@ -258,7 +270,18 @@ end -- conky_weather_icon
 
 
 -------------------------------------------------------------------------------
---                                                             forecast_min_max
+--                                                  conky_forecast_weather_icon
+-- returns the weather icon conky format string
+--
+function conky_forecast_weather_icon(idx, px, py)
+    local value = get_forecast_value('list', tonumber(idx), 'weather', 1, 'icon')
+    value = value and value or "na"
+    return string.format("${image ./img/%s.png -p %s,%s -s 32x32 -n}", value, px, py)
+end -- conky_forecast_weather_icon
+
+
+-------------------------------------------------------------------------------
+--                                                        forecast_min_max_temp
 -- find min and max temp values in the forecast
 --
 function forecast_min_max_temp()
@@ -266,7 +289,6 @@ function forecast_min_max_temp()
     local cnt = tonumber(get_forecast_value('cnt'))
     for i = 1, cnt do
         local temp = tonumber(get_forecast_value('list', i, 'main', 'temp'))
-        print(temp)
         if not min or temp < min then
             min = temp
         end
@@ -275,6 +297,29 @@ function forecast_min_max_temp()
         end
     end
     return min, max
+end -- forecast_min_max_temp
+
+
+-------------------------------------------------------------------------------
+--                                                                  conky_hours
+-- return the hour value at the index as string
+--
+function conky_forecast_hours(idx)
+    local dt = get_forecast_value('list', tonumber(idx), 'dt')
+    return dt and os.date("%H", dt) or 'NA'
+end -- conky_hours
+
+
+-------------------------------------------------------------------------------
+--                                                           draw_forecast_grid
+-- draw the forecast data grid
+--
+function draw_forecast_grid()
+    local min_temp, max_temp = forecast_min_max_temp()
+    min_temp = math.roundToMulti(min_temp, 5) - 5
+    max_temp = math.roundToMulti(max_temp, 5) + 5
+
+    -- TODO draw the grid
 end
 
 
@@ -284,13 +329,9 @@ end
 --
 function draw_forecast()
     print "draw_forecast()"
-    print (forecast_min_max_temp())
-    --[[
-    local cnt = get_forecast_value('cnt')
-    for i = 1, tonumber(cnt) do
-        local dt = get_forecast_value('list', i, 'dt')
-        print (os.date("%a %H", dt))
-    end]]
+    draw_forecast_grid()
+    -- TODO draw the temp graph
+    -- TODO draw the rain graph
 end -- draw_forecast
 
 
@@ -301,8 +342,13 @@ function conky_fetch_weather()
         return
     end
 
-    local surface = cairo_xlib_surface_create(conky_window.display, conky_window.drawable, conky_window.visual, conky_window.width, conky_window.height)
-    local context = cairo_create(cs)
+    local surface = cairo_xlib_surface_create(
+        conky_window.display,
+        conky_window.drawable,
+        conky_window.visual,
+        conky_window.width,
+        conky_window.height)
+    local context = cairo_create(surface)
 
     local updates = tonumber(conky_parse('${updates}'))
     if updates >= 5 then
