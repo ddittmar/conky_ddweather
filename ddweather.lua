@@ -281,6 +281,17 @@ end -- conky_forecast_weather_icon
 
 
 -------------------------------------------------------------------------------
+--                                                  conky_forecast_weather_icon
+-- returns the weather icon conky format string
+--
+function conky_forecast_wind_icon(idx, px, py)
+    local value = get_forecast_value('list', tonumber(idx), 'wind', 'deg')
+    value = value and value or "na"
+    return string.format("${image ./img/navigation.png -p %s,%s -s 16x16 -n}", px, py)
+end -- conky_forecast_weather_icon
+
+
+-------------------------------------------------------------------------------
 --                                                        forecast_min_max_temp
 -- find min and max temp values in the forecast
 --
