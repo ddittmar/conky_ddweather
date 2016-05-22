@@ -31,6 +31,7 @@ UPDATE_INTERVAL = 1800
 --                                                  position of the buttom line
 FORECAST_BUTTOM_LINE = 345
 
+
 -------------------------------------------------------------------------------
 --                                                           string:starts_with
 -- checks if a string starts with another string
@@ -80,6 +81,17 @@ function round_value(value, idp)
     return value --> no rounding
 end -- round_value
 
+
+-------------------------------------------------------------------------------
+--                                                        add_to_forecast_cache
+-- add a value to the cache
+--
+function add_to_forecast_cache(name, value)
+    if not forecast_cache then
+        forecast_cache = {}
+    end
+    forecast_cache[name] = value
+end -- add_to_forecast_cache
 
 -------------------------------------------------------------------------------
 --                                                           fetch_current_city
@@ -175,6 +187,8 @@ function fetch_forecast()
             forecast = obj
         end
     end
+
+    forecast_cache = nil
 end -- fetch_forecast
 
 
@@ -303,15 +317,22 @@ end -- conky_forecast_weather_icon
 --
 function forecast_min_max_temp()
     local min, max
-    local cnt = tonumber(get_forecast_value('cnt'))
-    for i = 1, cnt do
-        local temp = tonumber(get_forecast_value('list', i, 'main', 'temp'))
-        if not min or temp < min then
-            min = temp
+    if (forecast_cache and forecast_cache.min_temp and forecast_cache.max_temp) then
+        min = forecast_cache.min_temp
+        max = forecast_cache.max_temp
+    else
+        local cnt = tonumber(get_forecast_value('cnt'))
+        for i = 1, cnt do
+            local temp = tonumber(get_forecast_value('list', i, 'main', 'temp'))
+            if not min or temp < min then
+                min = temp
+            end
+            if not max or temp > max then
+                max = temp
+            end
         end
-        if not max or temp > max then
-            max = temp
-        end
+        add_to_forecast_cache('min_temp', min)
+        add_to_forecast_cache('max_temp', max)
     end
     return min, max
 end -- forecast_min_max_temp
@@ -323,9 +344,14 @@ end -- forecast_min_max_temp
 --
 function forecast_temp_values()
     local res = {}
-    local cnt = tonumber(get_forecast_value('cnt'))
-    for i = 1, cnt do
-        res[i] = tonumber(get_forecast_value('list', i, 'main', 'temp'))
+    if forecast_cache and forecast_cache.temp_values then
+        res = forecast_cache.temp_values
+    else
+        local cnt = tonumber(get_forecast_value('cnt'))
+        for i = 1, cnt do
+            res[i] = tonumber(get_forecast_value('list', i, 'main', 'temp'))
+        end
+        add_to_forecast_cache('temp_values', res)
     end
     return res
 end -- forecast_temp_values
@@ -409,13 +435,13 @@ function draw_temp_grid(cr)
     local min, max = forecast_min_max_temp_rounded()
     local diff = max - min
     local num_lines = (diff / 5) - 1
-    local pix_diff = 100 / (diff / 5)
+    local px_diff = 100 / (diff / 5)
 
     cairo_set_dash(cr, {5, 3}, 1, 1)
     cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 0.5))
-    for i = pix_diff, (100 - pix_diff), pix_diff do
-        cairo_move_to(cr, 105, FORECAST_BUTTOM_LINE - i)
-        cairo_line_to(cr, 490, FORECAST_BUTTOM_LINE - i)
+    for i = 1, num_lines do
+        cairo_move_to(cr, 105, FORECAST_BUTTOM_LINE - i * px_diff)
+        cairo_line_to(cr, 490, FORECAST_BUTTOM_LINE - i * px_diff)
     end
 
     cairo_stroke(cr)
