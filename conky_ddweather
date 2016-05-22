@@ -65,3 +65,12 @@ ${voffset 32}${font Ubuntu:size=9:style=bold}\
 ${goto 75}${color4}${lua forecast_max_temp}°
 ${voffset 87}\
 ${goto 75}${color4}${lua forecast_min_temp}°
+
+${lua_parse forecast_wind_icon 1 108 350}\
+${lua_parse forecast_wind_icon 2 158 350}\
+${lua_parse forecast_wind_icon 3 208 350}\
+${lua_parse forecast_wind_icon 4 258 350}\
+${lua_parse forecast_wind_icon 5 308 350}\
+${lua_parse forecast_wind_icon 6 358 350}\
+${lua_parse forecast_wind_icon 7 408 350}\
+${lua_parse forecast_wind_icon 8 458 350}\

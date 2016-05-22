@@ -305,9 +305,29 @@ end -- conky_forecast_weather_icon
 --
 function conky_forecast_wind_icon(idx, px, py)
     local value = get_forecast_value('list', tonumber(idx), 'wind', 'deg')
-    value = value and value or "na"
-    -- TODO hier das korrekte Icon ausgeben
-    return string.format("${image ./img/navigation.png -p %s,%s -s 16x16}", px, py)
+    local pic_name = 'n'
+    if value then
+        if value > 0 and value <= 22.5 then
+            pic_name = 'n'
+        elseif value > 22.5 and value <= 67.5 then
+            pic_name = 'ne'
+        elseif value > 67.5 and value <= 112.5 then
+            pic_name = 'e'
+        elseif value > 112.5 and value <= 157.5 then
+            pic_name = 'se'
+        elseif value > 157.5 and value <= 202.5 then
+            pic_name = 's'
+        elseif value > 202.5 and value <= 247.5 then
+            pic_name = 'sw'
+        elseif value > 247.5 and value <= 292.5 then
+            pic_name = 'w'
+        elseif value > 292.5 and value <= 337.5 then
+            pic_name = 'nw'
+        else
+            pic_name = 'n'
+        end
+    end
+    return string.format("${image ./img/%s.png -p %s,%s -s 16x16}", pic_name, px, py)
 end -- conky_forecast_weather_icon
 
 
