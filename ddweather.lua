@@ -19,6 +19,7 @@ API_PARAMS = {
     city = 'Hamburg,de',
     units = 'metric',
     lang = 'de',
+    cnt = 8,
     app_id = '1dc64bd5b9c3f038eefed54905a1c416'
 }
 
@@ -26,6 +27,9 @@ API_PARAMS = {
 --                                                  update intervall in seconds
 UPDATE_INTERVAL = 1800
 
+-------------------------------------------------------------------------------
+--                                                  position of the buttom line
+FORECAST_BUTTOM_LINE = 345
 
 -------------------------------------------------------------------------------
 --                                                           string:starts_with
@@ -149,11 +153,12 @@ function fetch_forecast()
         city = API_PARAMS['city']
     end
 
-    local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&cnt=8&APPID=%s",
+    local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&cnt=%s&APPID=%s",
         API_PARAMS['version'],
         city,
         API_PARAMS['units'],
         API_PARAMS['lang'],
+        API_PARAMS['cnt'],
         API_PARAMS['app_id'])
     print('fetch_forecast() from', url)
     local file = io.popen(string.format('/usr/bin/curl "%s" -s -S -o -', url))
@@ -313,6 +318,20 @@ end -- forecast_min_max_temp
 
 
 -------------------------------------------------------------------------------
+--                                                         forecast_temp_values
+-- find all temp values in the forecast
+--
+function forecast_temp_values()
+    local res = {}
+    local cnt = tonumber(get_forecast_value('cnt'))
+    for i = 1, cnt do
+        res[i] = tonumber(get_forecast_value('list', i, 'main', 'temp'))
+    end
+    return res
+end -- forecast_temp_values
+
+
+-------------------------------------------------------------------------------
 --                                                forecast_min_max_temp_rounded
 -- find min and max temp values in the forecast
 --
@@ -331,7 +350,11 @@ function conky_forecast_hours(idx)
     return dt and os.date("%H", dt) or 'NA'
 end -- conky_hours
 
--- TODO Doku
+
+-------------------------------------------------------------------------------
+--                                                      conky_forecast_min_temp
+-- returns the min temp label for conky
+--
 function conky_forecast_min_temp()
     if get_forecast_value('cnt') then
         local min_temp, max_temp = forecast_min_max_temp_rounded()
@@ -339,9 +362,13 @@ function conky_forecast_min_temp()
     else
         return 'NA'
     end
-end
+end -- conky_forecast_min_temp
 
--- TODO Doku
+
+-------------------------------------------------------------------------------
+--                                                      conky_forecast_max_temp
+-- returns the max temp label for conky
+--
 function conky_forecast_max_temp()
     if get_forecast_value('cnt') then
         local min_temp, max_temp = forecast_min_max_temp_rounded()
@@ -349,7 +376,7 @@ function conky_forecast_max_temp()
     else
         return 'NA'
     end
-end
+end -- conky_forecast_max_temp
 
 
 -------------------------------------------------------------------------------
@@ -362,7 +389,7 @@ end -- rgb_to_r_g_b
 
 
 -------------------------------------------------------------------------------
---                                                           draw_forecast_grid
+--                                                               draw_temp_grid
 -- draw the forecast data grid
 --
 function draw_temp_grid(cr)
@@ -374,8 +401,8 @@ function draw_temp_grid(cr)
     cairo_move_to(cr, 105, 245)
     cairo_line_to(cr, 490, 245)
     -- bottom line
-    cairo_move_to(cr, 105, 345)
-    cairo_line_to(cr, 490, 345)
+    cairo_move_to(cr, 105, FORECAST_BUTTOM_LINE)
+    cairo_line_to(cr, 490, FORECAST_BUTTOM_LINE)
 
     cairo_stroke(cr)
 
@@ -385,14 +412,58 @@ function draw_temp_grid(cr)
     local pix_diff = 100 / (diff / 5)
 
     cairo_set_dash(cr, {5, 3}, 1, 1)
-    -- cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 0.5))
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 0.5))
     for i = pix_diff, (100 - pix_diff), pix_diff do
-        cairo_move_to(cr, 105, 345 - i)
-        cairo_line_to(cr, 490, 345 - i)
+        cairo_move_to(cr, 105, FORECAST_BUTTOM_LINE - i)
+        cairo_line_to(cr, 490, FORECAST_BUTTOM_LINE - i)
     end
 
     cairo_stroke(cr)
-end
+end -- draw_temp_grid
+
+
+-------------------------------------------------------------------------------
+--                                                               draw_cairo_dot
+-- draw a dot at the given position
+--
+function draw_cairo_dot(cr, x, y, r)
+    cairo_move_to(cr, x, y)
+    cairo_arc(cr, x, y, r, 0, 360)
+    cairo_stroke_preserve(cr)
+    cairo_fill(cr)
+end -- draw_cairo_dot
+
+
+-------------------------------------------------------------------------------
+--                                                              draw_temp_graph
+-- draw the temp graph from the forecast data
+--
+function draw_temp_graph(cr)
+    local function calc_y(temp, max_temp)
+        return FORECAST_BUTTOM_LINE - (temp * 100 / max_temp)
+    end
+
+    cairo_set_line_width(cr, 1);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND)
+    cairo_set_dash(cr, {5, 3}, 0, 1)
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 1))
+
+    local min_temp, max_temp = forecast_min_max_temp_rounded()
+    local prev_p = {}
+    local point = { x = 122, y = FORECAST_BUTTOM_LINE }
+    for _, temp in ipairs(forecast_temp_values()) do
+        point.y = calc_y(temp, max_temp)
+        draw_cairo_dot(cr, point.x, point.y, 3)
+        if prev_p.x and prev_p.y then
+            cairo_move_to(cr, prev_p.x, prev_p.y)
+            cairo_line_to(cr, point.x, point.y)
+            cairo_stroke(cr)
+        end
+        prev_p = { x = point.x, y = point.y}
+        point.x = point.x + 50
+    end
+
+end -- draw_temp_graph
 
 
 -------------------------------------------------------------------------------
@@ -401,8 +472,9 @@ end
 --
 function draw_forecast(cr)
     draw_temp_grid(cr)
-    -- TODO draw the temp graph
+    draw_temp_graph(cr)
     -- TODO draw the rain graph
+    -- TODO draw the wind graph
 end -- draw_forecast
 
 
