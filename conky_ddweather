@@ -1,4 +1,4 @@
-update_interval 1
+update_interval 30
 
 double_buffer yes
 no_buffers yes

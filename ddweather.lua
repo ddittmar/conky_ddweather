@@ -519,21 +519,25 @@ function conky_fetch_weather()
         conky_window.height)
     local cr = cairo_create(surface)
 
-    local updates = tonumber(conky_parse('${updates}'))
-    if updates >= 5 then
-        local fetch = ((updates - 5) % UPDATE_INTERVAL) == 0
-        if fetch or not current_weather then
-            local fetch_city = ((updates - 5) % (UPDATE_INTERVAL * 4)) == 0
-            if fetch_city or not city then
-                city = fetch_current_city()
-            end
-            fetch_current_weather()
-            fetch_forecast()
-        end
-        draw_forecast(cr)
+    call_time = os.time()
+    if not last_call_time then
+        last_call_time = call_time
     end
+
+    local fetch = ((call_time - last_call_time) % UPDATE_INTERVAL) == 0
+    if fetch or not current_weather then
+        local fetch_city = ((call_time - last_call_time) % (UPDATE_INTERVAL * 4)) == 0
+        if fetch_city or not city then
+            city = fetch_current_city()
+        end
+        fetch_current_weather()
+        fetch_forecast()
+    end
+    draw_forecast(cr)
 
     cairo_surface_destroy(surface)
     cairo_destroy(cr)
+
+    last_call_time = call_time
 
 end -- conky_fetch_weather
