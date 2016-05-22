@@ -1,5 +1,6 @@
-update_interval 30
+update_interval 1
 
+imlib_cache_size 8388608
 double_buffer yes
 no_buffers yes
 

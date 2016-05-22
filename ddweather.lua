@@ -284,7 +284,7 @@ end -- conky_clouds
 function conky_weather_icon()
     local value = get_current_weather_value('weather', 1, 'icon')
     value = value and value or "na"
-    return string.format("${image ./img/%s.png -p 65,60 -s 128x128 -n}", value)
+    return string.format("${image ./img/%s.png -p 65,60 -s 128x128}", value)
 end -- conky_weather_icon
 
 
@@ -295,7 +295,7 @@ end -- conky_weather_icon
 function conky_forecast_weather_icon(idx, px, py)
     local value = get_forecast_value('list', tonumber(idx), 'weather', 1, 'icon')
     value = value and value or "na"
-    return string.format("${image ./img/%s.png -p %s,%s -s 32x32 -n}", value, px, py)
+    return string.format("${image ./img/%s.png -p %s,%s -s 32x32}", value, px, py)
 end -- conky_forecast_weather_icon
 
 
@@ -307,7 +307,7 @@ function conky_forecast_wind_icon(idx, px, py)
     local value = get_forecast_value('list', tonumber(idx), 'wind', 'deg')
     value = value and value or "na"
     -- TODO hier das korrekte Icon ausgeben
-    return string.format("${image ./img/navigation.png -p %s,%s -s 16x16 -n}", px, py)
+    return string.format("${image ./img/navigation.png -p %s,%s -s 16x16}", px, py)
 end -- conky_forecast_weather_icon
 
 
@@ -453,10 +453,10 @@ end -- draw_temp_grid
 -- draw a dot at the given position
 --
 function draw_cairo_dot(cr, x, y, r)
+    cairo_set_line_width(cr, r*2);
     cairo_move_to(cr, x, y)
-    cairo_arc(cr, x, y, r, 0, 360)
-    cairo_stroke_preserve(cr)
-    cairo_fill(cr)
+    cairo_line_to(cr, x, y)
+    cairo_stroke(cr)
 end -- draw_cairo_dot
 
 
@@ -481,14 +481,14 @@ function draw_temp_graph(cr)
         point.y = calc_y(temp, max_temp)
         draw_cairo_dot(cr, point.x, point.y, 3)
         if prev_p.x and prev_p.y then
+            cairo_set_line_width(cr, 1);
             cairo_move_to(cr, prev_p.x, prev_p.y)
             cairo_line_to(cr, point.x, point.y)
             cairo_stroke(cr)
         end
-        prev_p = { x = point.x, y = point.y}
+        prev_p = { x = point.x, y = point.y }
         point.x = point.x + 50
     end
-
 end -- draw_temp_graph
 
 
@@ -511,33 +511,35 @@ function conky_fetch_weather()
         return
     end
 
-    local surface = cairo_xlib_surface_create(
-        conky_window.display,
-        conky_window.drawable,
-        conky_window.visual,
-        conky_window.width,
-        conky_window.height)
-    local cr = cairo_create(surface)
+    local updates = tonumber(conky_parse('${updates}'))
+    if updates >= 5 then
+        local surface = cairo_xlib_surface_create(
+            conky_window.display,
+            conky_window.drawable,
+            conky_window.visual,
+            conky_window.width,
+            conky_window.height)
+        local cr = cairo_create(surface)
 
-    call_time = os.time()
-    if not last_call_time then
+        call_time = os.time()
+        if not last_call_time then
+            last_call_time = call_time
+        end
+
+        local fetch = ((call_time - last_call_time) % UPDATE_INTERVAL) == 0
+        if fetch or not current_weather then
+            local fetch_city = ((call_time - last_call_time) % (UPDATE_INTERVAL * 4)) == 0
+            if fetch_city or not city then
+                city = fetch_current_city()
+            end
+            fetch_current_weather()
+            fetch_forecast()
+        end
+        draw_forecast(cr)
+
+        cairo_surface_destroy(surface)
+        cairo_destroy(cr)
+
         last_call_time = call_time
     end
-
-    local fetch = ((call_time - last_call_time) % UPDATE_INTERVAL) == 0
-    if fetch or not current_weather then
-        local fetch_city = ((call_time - last_call_time) % (UPDATE_INTERVAL * 4)) == 0
-        if fetch_city or not city then
-            city = fetch_current_city()
-        end
-        fetch_current_weather()
-        fetch_forecast()
-    end
-    draw_forecast(cr)
-
-    cairo_surface_destroy(surface)
-    cairo_destroy(cr)
-
-    last_call_time = call_time
-
 end -- conky_fetch_weather
