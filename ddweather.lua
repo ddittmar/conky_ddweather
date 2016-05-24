@@ -378,6 +378,25 @@ end -- forecast_temp_values
 
 
 -------------------------------------------------------------------------------
+--                                                         forecast_wind_values
+-- find all wind speed values in the forecast
+--
+function forecast_wind_values()
+    local res = {}
+    if forecast_cache and forecast_cache.wind_values then
+        res = forecast_cache.wind_values
+    else
+        local cnt = tonumber(get_forecast_value('cnt'))
+        for i = 1, cnt do
+            res[i] = tonumber(get_forecast_value('list', i, 'wind', 'speed'))
+        end
+        add_to_forecast_cache('wind_values', res)
+    end
+    return res
+end -- forecast_wind_values
+
+
+-------------------------------------------------------------------------------
 --                                                forecast_min_max_temp_rounded
 -- find min and max temp values in the forecast
 --
@@ -403,7 +422,7 @@ end -- conky_hours
 --
 function conky_forecast_min_temp()
     if get_forecast_value('cnt') then
-        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        local min_temp, _ = forecast_min_max_temp_rounded()
         return min_temp
     else
         return 'NA'
@@ -417,7 +436,7 @@ end -- conky_forecast_min_temp
 --
 function conky_forecast_max_temp()
     if get_forecast_value('cnt') then
-        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        local _, max_temp = forecast_min_max_temp_rounded()
         return max_temp
     else
         return 'NA'
@@ -494,7 +513,7 @@ function draw_temp_graph(cr)
     cairo_set_dash(cr, {5, 3}, 0, 1)
     cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 1))
 
-    local min_temp, max_temp = forecast_min_max_temp_rounded()
+    local _, max_temp = forecast_min_max_temp_rounded()
     local prev_p = {}
     local point = { x = 122, y = FORECAST_BUTTOM_LINE }
     for _, temp in ipairs(forecast_temp_values()) do
@@ -513,14 +532,30 @@ end -- draw_temp_graph
 
 
 -------------------------------------------------------------------------------
+--                                                              draw_wind_graph
+-- draw the wind graph from the forecast data
+--
+function draw_wind_graph(cr)
+    cairo_set_line_width(cr, 1);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND)
+    cairo_set_dash(cr, {5, 3}, 0, 1)
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0x0000FF, 1))
+
+    for _, wind in ipairs(forecast_wind_values()) do
+        -- TODO
+    end
+end
+
+
+-------------------------------------------------------------------------------
 --                                                                draw_forecast
 -- draw the forecast data
 --
 function draw_forecast(cr)
     draw_temp_grid(cr)
     draw_temp_graph(cr)
+    draw_wind_graph(cr)
     -- TODO draw the rain graph
-    -- TODO draw the wind graph
 end -- draw_forecast
 
 
