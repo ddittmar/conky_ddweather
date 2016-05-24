@@ -429,6 +429,30 @@ function conky_forecast_min_temp()
     end
 end -- conky_forecast_min_temp
 
+-- TODO doc
+function forecast_max_wind()
+    local max = 0
+    for wind in ipairs(forecast_wind_values()) do
+        if wind > max then
+            max = wind
+        end
+    end
+    return max
+end
+
+-- TODO doc
+function forecast_max_wind_rounded()
+    return math.roundToMulti(forecast_max_wind(), 5)
+end
+
+-- TODO doc
+function conky_forecast_max_wind()
+    if (get_forecast_value('cnt')) then
+        return forecast_max_wind_rounded()
+    else
+        return 'NA'
+    end
+end
 
 -------------------------------------------------------------------------------
 --                                                      conky_forecast_max_temp
@@ -536,13 +560,29 @@ end -- draw_temp_graph
 -- draw the wind graph from the forecast data
 --
 function draw_wind_graph(cr)
+    local function calc_y(wind, max_wind)
+        return FORECAST_BUTTOM_LINE - wind * 100 / max_wind
+    end
+
     cairo_set_line_width(cr, 1);
     cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND)
     cairo_set_dash(cr, {5, 3}, 0, 1)
-    cairo_set_source_rgba(cr, rgb_to_r_g_b(0x0000FF, 1))
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0x1081e0, 1))
 
+    local max_wind = forecast_max_wind_rounded()
+    local prev_p = {}
+    local point = { x = 122, y = FORECAST_BUTTOM_LINE }
     for _, wind in ipairs(forecast_wind_values()) do
-        -- TODO
+        point.y = calc_y(wind, max_wind)
+        draw_cairo_dot(cr, point.x, point.y, 3)
+        if prev_p.x and prev_p.y then
+            cairo_set_line_width(cr, 1);
+            cairo_move_to(cr, prev_p.x, prev_p.y)
+            cairo_line_to(cr, point.x, point.y)
+            cairo_stroke(cr)
+        end
+        prev_p = { x = point.x, y = point.y }
+        point.x = point.x + 50
     end
 end
 
