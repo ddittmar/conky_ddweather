@@ -33,6 +33,8 @@ color2 AAAAAA
 color3 888888
 # Orange
 color4 EF5A29
+# Blue
+color5 1081e0
 
 lua_load ./ddweather.lua
 lua_draw_hook_pre fetch_weather
@@ -62,7 +64,8 @@ ${goto 410}${color4}${lua forecast_hours 7} h ${lua_parse forecast_weather_icon 
 ${goto 460}${color4}${lua forecast_hours 8} h ${lua_parse forecast_weather_icon 8 450 200}\
 
 ${voffset 32}${font Ubuntu:size=9:style=bold}\
-${goto 75}${color4}${lua forecast_max_temp}°
+${goto 75}${color4}${lua forecast_max_temp}°\
+${goto 495}${color5}${lua forecast_max_wind} m/s
 ${voffset 87}\
 ${goto 75}${color4}${lua forecast_min_temp}°
 

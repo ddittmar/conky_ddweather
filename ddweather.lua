@@ -378,6 +378,25 @@ end -- forecast_temp_values
 
 
 -------------------------------------------------------------------------------
+--                                                         forecast_wind_values
+-- find all wind speed values in the forecast
+--
+function forecast_wind_values()
+    local res = {}
+    if forecast_cache and forecast_cache.wind_values then
+        res = forecast_cache.wind_values
+    else
+        local cnt = tonumber(get_forecast_value('cnt'))
+        for i = 1, cnt do
+            res[i] = tonumber(get_forecast_value('list', i, 'wind', 'speed'))
+        end
+        add_to_forecast_cache('wind_values', res)
+    end
+    return res
+end -- forecast_wind_values
+
+
+-------------------------------------------------------------------------------
 --                                                forecast_min_max_temp_rounded
 -- find min and max temp values in the forecast
 --
@@ -403,13 +422,37 @@ end -- conky_hours
 --
 function conky_forecast_min_temp()
     if get_forecast_value('cnt') then
-        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        local min_temp, _ = forecast_min_max_temp_rounded()
         return min_temp
     else
         return 'NA'
     end
 end -- conky_forecast_min_temp
 
+-- TODO doc
+function forecast_max_wind()
+    local max = 0
+    for wind in ipairs(forecast_wind_values()) do
+        if wind > max then
+            max = wind
+        end
+    end
+    return max
+end
+
+-- TODO doc
+function forecast_max_wind_rounded()
+    return math.roundToMulti(forecast_max_wind(), 5)
+end
+
+-- TODO doc
+function conky_forecast_max_wind()
+    if (get_forecast_value('cnt')) then
+        return forecast_max_wind_rounded()
+    else
+        return 'NA'
+    end
+end
 
 -------------------------------------------------------------------------------
 --                                                      conky_forecast_max_temp
@@ -417,7 +460,7 @@ end -- conky_forecast_min_temp
 --
 function conky_forecast_max_temp()
     if get_forecast_value('cnt') then
-        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        local _, max_temp = forecast_min_max_temp_rounded()
         return max_temp
     else
         return 'NA'
@@ -494,7 +537,7 @@ function draw_temp_graph(cr)
     cairo_set_dash(cr, {5, 3}, 0, 1)
     cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 1))
 
-    local min_temp, max_temp = forecast_min_max_temp_rounded()
+    local _, max_temp = forecast_min_max_temp_rounded()
     local prev_p = {}
     local point = { x = 122, y = FORECAST_BUTTOM_LINE }
     for _, temp in ipairs(forecast_temp_values()) do
@@ -513,14 +556,46 @@ end -- draw_temp_graph
 
 
 -------------------------------------------------------------------------------
+--                                                              draw_wind_graph
+-- draw the wind graph from the forecast data
+--
+function draw_wind_graph(cr)
+    local function calc_y(wind, max_wind)
+        return FORECAST_BUTTOM_LINE - wind * 100 / max_wind
+    end
+
+    cairo_set_line_width(cr, 1);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND)
+    cairo_set_dash(cr, {5, 3}, 0, 1)
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0x1081e0, 1))
+
+    local max_wind = forecast_max_wind_rounded()
+    local prev_p = {}
+    local point = { x = 122, y = FORECAST_BUTTOM_LINE }
+    for _, wind in ipairs(forecast_wind_values()) do
+        point.y = calc_y(wind, max_wind)
+        draw_cairo_dot(cr, point.x, point.y, 3)
+        if prev_p.x and prev_p.y then
+            cairo_set_line_width(cr, 1);
+            cairo_move_to(cr, prev_p.x, prev_p.y)
+            cairo_line_to(cr, point.x, point.y)
+            cairo_stroke(cr)
+        end
+        prev_p = { x = point.x, y = point.y }
+        point.x = point.x + 50
+    end
+end
+
+
+-------------------------------------------------------------------------------
 --                                                                draw_forecast
 -- draw the forecast data
 --
 function draw_forecast(cr)
     draw_temp_grid(cr)
     draw_temp_graph(cr)
+    draw_wind_graph(cr)
     -- TODO draw the rain graph
-    -- TODO draw the wind graph
 end -- draw_forecast
 
 
