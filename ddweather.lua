@@ -84,7 +84,7 @@ end -- round_value
 
 -------------------------------------------------------------------------------
 --                                                        add_to_forecast_cache
--- add a value to the cache
+-- add a value to the forecast_cache
 --
 function add_to_forecast_cache(name, value)
     if not forecast_cache then
@@ -341,9 +341,7 @@ function forecast_min_max_temp()
         min = forecast_cache.min_temp
         max = forecast_cache.max_temp
     else
-        local cnt = tonumber(get_forecast_value('cnt'))
-        for i = 1, cnt do
-            local temp = tonumber(get_forecast_value('list', i, 'main', 'temp'))
+        for _, temp in ipairs(forecast_temp_values()) do
             if not min or temp < min then
                 min = temp
             end
@@ -429,7 +427,11 @@ function conky_forecast_min_temp()
     end
 end -- conky_forecast_min_temp
 
--- TODO doc
+
+-------------------------------------------------------------------------------
+--                                                            forecast_max_wind
+-- returns the max wind speed (m/s) from the forcast
+--
 function forecast_max_wind()
     local max = 0
     for wind in ipairs(forecast_wind_values()) do
@@ -438,21 +440,31 @@ function forecast_max_wind()
         end
     end
     return max
-end
+end -- forecast_max_wind
 
--- TODO doc
+
+-------------------------------------------------------------------------------
+--                                                    forecast_max_wind_rounded
+-- return the max wind speed (m/s) from the forcast rounded to a multiple of 5
+--
 function forecast_max_wind_rounded()
     return math.roundToMulti(forecast_max_wind(), 5)
-end
+end -- forecast_max_wind_rounded
 
--- TODO doc
+
+-------------------------------------------------------------------------------
+--                                                      conky_forecast_max_wind
+-- returns the max wind speed (m/s) from the forcast rounded to a multiple of 5
+-- or 'NA' if the forcast is not loaded yet
+--
 function conky_forecast_max_wind()
     if (get_forecast_value('cnt')) then
         return forecast_max_wind_rounded()
     else
         return 'NA'
     end
-end
+end -- conky_forecast_max_wind
+
 
 -------------------------------------------------------------------------------
 --                                                      conky_forecast_max_temp
@@ -586,6 +598,10 @@ function draw_wind_graph(cr)
     end
 end
 
+-- TODO doc
+function draw_rain_graph(cr)
+    -- TODO body...
+end
 
 -------------------------------------------------------------------------------
 --                                                                draw_forecast
@@ -595,7 +611,7 @@ function draw_forecast(cr)
     draw_temp_grid(cr)
     draw_temp_graph(cr)
     draw_wind_graph(cr)
-    -- TODO draw the rain graph
+    draw_rain_graph(cr)
 end -- draw_forecast
 
 
