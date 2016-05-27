@@ -33,6 +33,17 @@ FORECAST_BUTTOM_LINE = 345
 
 
 -------------------------------------------------------------------------------
+--                                                                  print_table
+-- print a table (debugging)
+--
+function print_table(t)
+    for k,v in pairs(t) do
+        print(k,v)
+    end
+end -- print_table
+
+
+-------------------------------------------------------------------------------
 --                                                           string:starts_with
 -- checks if a string starts with another string
 --
@@ -395,6 +406,25 @@ end -- forecast_wind_values
 
 
 -------------------------------------------------------------------------------
+--                                                         forecast_rain_values
+-- find all rain values in the forecast
+--
+function forecast_rain_values()
+    local res = {}
+    if forecast_cache and forecast_cache.rain_values then
+        res = forecast_cache.rain_values
+    else
+        local cnt = tonumber(get_forecast_value('cnt'))
+        for i = 1, cnt do
+            res[i] = tonumber(get_forecast_value('list', i, 'rain', '3h')) or 0
+        end
+        add_to_forecast_cache('rain_values', res)
+    end
+    return res
+end -- forecast_rain_values
+
+
+-------------------------------------------------------------------------------
 --                                                forecast_min_max_temp_rounded
 -- find min and max temp values in the forecast
 --
@@ -598,10 +628,32 @@ function draw_wind_graph(cr)
     end
 end
 
--- TODO doc
+
+-------------------------------------------------------------------------------
+--                                                              draw_rain_graph
+-- draw the rain forecast data
+--
 function draw_rain_graph(cr)
-    -- TODO body...
-end
+    local function calc_y()
+        return FORECAST_BUTTOM_LINE - 30
+    end
+
+    cairo_set_line_width(cr, 26);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT)
+    cairo_set_dash(cr, {5, 3}, 0, 1)
+    cairo_set_source_rgba(cr, rgb_to_r_g_b(0x1081e0, 0.4))
+
+    local point_x = 122
+    for _, rain in ipairs(forecast_rain_values()) do
+        if rain >= 0 then
+            cairo_move_to(cr, point_x, FORECAST_BUTTOM_LINE)
+            cairo_line_to(cr, point_x, calc_y())
+        end
+        point_x = point_x + 50
+    end
+    cairo_stroke(cr)
+end -- draw_rain_graph
+
 
 -------------------------------------------------------------------------------
 --                                                                draw_forecast
