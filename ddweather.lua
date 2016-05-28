@@ -700,15 +700,14 @@ function conky_fetch_weather()
             last_weather_fetch_time = call_time
         end
 
-        print(call_time - last_city_fetch_time)
-        local fetch_city = ((call_time - last_city_fetch_time) % CITY_UPDATE_INTERVAL) == 0
+        local fetch_city = ((call_time - last_city_fetch_time) >= CITY_UPDATE_INTERVAL)
         if fetch_city or not city then
             city = fetch_current_city()
             last_city_fetch_time = call_time
         end
 
         --print(call_time - last_weather_fetch_time)
-        local fetch_weather = ((call_time - last_weather_fetch_time) % WEATHER_UPDATE_INTERVAL) == 0
+        local fetch_weather = ((call_time - last_weather_fetch_time) >= WEATHER_UPDATE_INTERVAL)
         if fetch_weather or not current_weather then
             fetch_current_weather()
             fetch_forecast()
