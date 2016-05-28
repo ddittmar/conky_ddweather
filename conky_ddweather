@@ -1,5 +1,6 @@
 update_interval 1
 
+imlib_cache_size 8388608
 double_buffer yes
 no_buffers yes
 
@@ -17,8 +18,8 @@ own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
 alignment bottom_left
 gap_x 0
 gap_y 20
-minimum_size 575 237
-maximum_width 575
+minimum_size 605 420
+maximum_width 605
 
 default_bar_size 60 8
 
@@ -32,15 +33,17 @@ color2 AAAAAA
 color3 888888
 # Orange
 color4 EF5A29
+# Blue
+color5 1081e0
 
 lua_load ./ddweather.lua
-lua_draw_hook_pre fetch_current_weather
+lua_draw_hook_pre fetch_weather
 
 TEXT
-${image ./img/background.png -p 0,0 -s 575x237}
+${image ./img/background.png -p 0,0 -s 605x420}
 ${lua_parse weather_icon}
 
-
+${voffset 7}${goto 90}${color3}${font Ubuntu:size=7:style=normal}openweathermap.org
 ${font Ubuntu:size=10:style=bold}${goto 230}${color4}${lua city}:${alignr 75}${lua weather description}
 ${voffset 7}${font Ubuntu:size=9:style=normal}\
 ${goto 230}${color1}Temperatur:${alignr 75}${color2}${lua main temp 1} °C
@@ -48,5 +51,29 @@ ${voffset 2}${goto 230}${color1}Luftfeuchtigkeit:${alignr 75}${color2}${lua main
 ${voffset 2}${goto 230}${color1}Luftdruck:${alignr 75}${color2}${lua main pressure 2} hPa
 ${voffset 2}${goto 230}${color1}Windgeschwindigkeit:${alignr 75}${color2}${lua wind speed 1} m/s
 ${voffset 2}${goto 230}${color1}Windrichtung:${alignr 75}${color2}${lua wind deg 0} °
-${voffset 2}${goto 230}${font Ubuntu:size=9:style=normal}${color1}Bewölkung:${alignr 75}${color2}${lua clouds 0} %
-${voffset 5}${goto 90}${color3}${font Ubuntu:size=7:style=normal}openweathermap.org
+${voffset 2}${goto 230}${color1}Bewölkung:${alignr 75}${color2}${lua clouds 0} %
+
+${voffset 2}${font Ubuntu:size=9:style=bold}\
+${goto 110}${color4}${lua forecast_hours 1} h ${lua_parse forecast_weather_icon 1 100 200}\
+${goto 160}${color4}${lua forecast_hours 2} h ${lua_parse forecast_weather_icon 2 150 200}\
+${goto 210}${color4}${lua forecast_hours 3} h ${lua_parse forecast_weather_icon 3 200 200}\
+${goto 260}${color4}${lua forecast_hours 4} h ${lua_parse forecast_weather_icon 4 250 200}\
+${goto 310}${color4}${lua forecast_hours 5} h ${lua_parse forecast_weather_icon 5 300 200}\
+${goto 360}${color4}${lua forecast_hours 6} h ${lua_parse forecast_weather_icon 6 350 200}\
+${goto 410}${color4}${lua forecast_hours 7} h ${lua_parse forecast_weather_icon 7 400 200}\
+${goto 460}${color4}${lua forecast_hours 8} h ${lua_parse forecast_weather_icon 8 450 200}\
+
+${voffset 32}${font Ubuntu:size=9:style=bold}\
+${goto 75}${color4}${lua forecast_max_temp}°\
+${goto 495}${color5}${lua forecast_max_wind} m/s
+${voffset 87}\
+${goto 75}${color4}${lua forecast_min_temp}°
+
+${lua_parse forecast_wind_icon 1 108 350}\
+${lua_parse forecast_wind_icon 2 158 350}\
+${lua_parse forecast_wind_icon 3 208 350}\
+${lua_parse forecast_wind_icon 4 258 350}\
+${lua_parse forecast_wind_icon 5 308 350}\
+${lua_parse forecast_wind_icon 6 358 350}\
+${lua_parse forecast_wind_icon 7 408 350}\
+${lua_parse forecast_wind_icon 8 458 350}\
