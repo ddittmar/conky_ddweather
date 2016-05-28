@@ -24,8 +24,12 @@ API_PARAMS = {
 }
 
 -------------------------------------------------------------------------------
---                                                  update intervall in seconds
-UPDATE_INTERVAL = 1800
+--                                          weather update intervall in seconds
+WEATHER_UPDATE_INTERVAL = 1800
+
+-------------------------------------------------------------------------------
+--                                             city update intervall in seconds
+CITY_UPDATE_INTERVAL = 1800 * 4
 
 -------------------------------------------------------------------------------
 --                                                  position of the buttom line
@@ -689,24 +693,30 @@ function conky_fetch_weather()
         local cr = cairo_create(surface)
 
         call_time = os.time()
-        if not last_call_time then
-            last_call_time = call_time
+        if not last_city_fetch_time then
+            last_city_fetch_time = call_time
+        end
+        if not last_weather_fetch_time then
+            last_weather_fetch_time = call_time
         end
 
-        local fetch = ((call_time - last_call_time) % UPDATE_INTERVAL) == 0
-        if fetch or not current_weather then
-            local fetch_city = ((call_time - last_call_time) % (UPDATE_INTERVAL * 4)) == 0
-            if fetch_city or not city then
-                city = fetch_current_city()
-            end
+        print(call_time - last_city_fetch_time)
+        local fetch_city = ((call_time - last_city_fetch_time) % CITY_UPDATE_INTERVAL) == 0
+        if fetch_city or not city then
+            city = fetch_current_city()
+            last_city_fetch_time = call_time
+        end
+
+        --print(call_time - last_weather_fetch_time)
+        local fetch_weather = ((call_time - last_weather_fetch_time) % WEATHER_UPDATE_INTERVAL) == 0
+        if fetch_weather or not current_weather then
             fetch_current_weather()
             fetch_forecast()
+            last_weather_fetch_time = call_time
         end
         draw_forecast(cr)
 
         cairo_surface_destroy(surface)
         cairo_destroy(cr)
-
-        last_call_time = call_time
     end
 end -- conky_fetch_weather
