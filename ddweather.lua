@@ -31,6 +31,9 @@ UPDATE_INTERVAL = 1800
 --                                                  position of the buttom line
 FORECAST_BUTTOM_LINE = 345
 
+-------------------------------------------------------------------------------
+--                                                     position of the top line
+FORECAST_TOP_LINE = 245
 
 -------------------------------------------------------------------------------
 --                                                                  print_table
@@ -529,8 +532,8 @@ function draw_temp_grid(cr)
     cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 1))
 
     -- top line
-    cairo_move_to(cr, 105, 245)
-    cairo_line_to(cr, 490, 245)
+    cairo_move_to(cr, 105, FORECAST_TOP_LINE)
+    cairo_line_to(cr, 490, FORECAST_TOP_LINE)
     -- bottom line
     cairo_move_to(cr, 105, FORECAST_BUTTOM_LINE)
     cairo_line_to(cr, 490, FORECAST_BUTTOM_LINE)
@@ -571,7 +574,7 @@ end -- draw_cairo_dot
 --
 function draw_temp_graph(cr)
     local function calc_y(temp, max_temp)
-        return FORECAST_BUTTOM_LINE - (temp * 100 / max_temp)
+        return FORECAST_BUTTOM_LINE - math.round(temp * (FORECAST_BUTTOM_LINE - FORECAST_TOP_LINE) / max_temp)
     end
 
     cairo_set_line_width(cr, 1);
@@ -603,7 +606,7 @@ end -- draw_temp_graph
 --
 function draw_wind_graph(cr)
     local function calc_y(wind, max_wind)
-        return FORECAST_BUTTOM_LINE - wind * 100 / max_wind
+        return FORECAST_BUTTOM_LINE - math.round(wind * (FORECAST_BUTTOM_LINE - FORECAST_TOP_LINE) / max_wind)
     end
 
     cairo_set_line_width(cr, 1);
@@ -634,8 +637,8 @@ end
 -- draw the rain forecast data
 --
 function draw_rain_graph(cr)
-    local function calc_y()
-        return FORECAST_BUTTOM_LINE - 30
+    local function calc_y(rain, max_rain)
+        return FORECAST_BUTTOM_LINE - math.round(rain * (FORECAST_BUTTOM_LINE - FORECAST_TOP_LINE) / 10)
     end
 
     cairo_set_line_width(cr, 26);
@@ -643,11 +646,12 @@ function draw_rain_graph(cr)
     cairo_set_dash(cr, {5, 3}, 0, 1)
     cairo_set_source_rgba(cr, rgb_to_r_g_b(0x1081e0, 0.4))
 
+    local _, max = forecast_max_wind_rounded()
     local point_x = 122
     for _, rain in ipairs(forecast_rain_values()) do
         if rain >= 0 then
             cairo_move_to(cr, point_x, FORECAST_BUTTOM_LINE)
-            cairo_line_to(cr, point_x, calc_y())
+            cairo_line_to(cr, point_x, calc_y(rain, max))
         end
         point_x = point_x + 50
     end
