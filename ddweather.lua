@@ -180,7 +180,7 @@ function fetch_forecast()
     if city == nil then
         city = API_PARAMS['city']
     end
---[=====[
+    
     local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&cnt=%s&APPID=%s",
         API_PARAMS['version'],
         city,
@@ -193,8 +193,7 @@ function fetch_forecast()
     local output = file:read('*all')
     file:close()
     print('fetch_forecast() =>', output) --> {"city":{"id":2911298,"name":"Hamburg","coord":{"lon":10,"lat":53.549999},"country":"DE","population":0,"sys":{"population":0}},"cod":"200","message":0.0052,"cnt":8,"list":[{"dt":1478854800,"main":{"temp":-4.59,"temp_min":-5.53,"temp_max":-4.59,"pressure":1027.75,"sea_level":1032.56,"grnd_level":1027.75,"humidity":81,"temp_kf":0.93},"weather":[{"id":800,"main":"Clear","description":"klarer Himmel","icon":"02d"}],"clouds":{"all":8},"wind":{"speed":1.39,"deg":23.5009},"rain":{},"snow":{},"sys":{"pod":"d"},"dt_txt":"2016-11-11 09:00:00"},{"dt":1478865600,"main":{"temp":-1.65,"temp_min":-2.35,"temp_max":-1.65,"pressure":1029.83,"sea_level":1034.54,"grnd_level":1029.83,"humidity":87,"temp_kf":0.7},"weather":[{"id":800,"main":"Clear","description":"klarer Himmel","icon":"01d"}],"clouds":{"all":0},"wind":{"speed":1.41,"deg":359.502},"rain":{},"snow":{},"sys":{"pod":"d"},"dt_txt":"2016-11-11 12:00:00"},{"dt":1478876400,"main":{"temp":-6.78,"temp_min":-7.25,"temp_max":-6.78,"pressure":1031.38,"sea_level":1036.08,"grnd_level":1031.38,"humidity":79,"temp_kf":0.47},"weather":[{"id":800,"main":"Clear","description":"klarer Himmel","icon":"01d"}],"clouds":{"all":0},"wind":{"speed":1.27,"deg":305.005},"rain":{},"snow":{},"sys":{"pod":"d"},"dt_txt":"2016-11-11 15:00:00"},{"dt":1478887200,"main":{"temp":-10.48,"temp_min":-10.71,"temp_max":-10.48,"pressure":1032.95,"sea_level":1037.84,"grnd_level":1032.95,"humidity":61,"temp_kf":0.23},"weather":[{"id":801,"main":"Clouds","description":"ein paar Wolken","icon":"02n"}],"clouds":{"all":12},"wind":{"speed":1.32,"deg":322.004},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-11 18:00:00"},{"dt":1478898000,"main":{"temp":-11.86,"temp_min":-11.86,"temp_max":-11.86,"pressure":1034.41,"sea_level":1039.29,"grnd_level":1034.41,"humidity":60,"temp_kf":0},"weather":[{"id":500,"main":"Rain","description":"leichter Regen","icon":"10n"}],"clouds":{"all":0},"wind":{"speed":1.31,"deg":349.501},"rain":{"3h":0.005},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-11 21:00:00"},{"dt":1478908800,"main":{"temp":-9.52,"temp_min":-9.52,"temp_max":-9.52,"pressure":1035.46,"sea_level":1040.38,"grnd_level":1035.46,"humidity":56,"temp_kf":0},"weather":[{"id":802,"main":"Clouds","description":"überwiegend bewölkt","icon":"03n"}],"clouds":{"all":44},"wind":{"speed":1.32,"deg":306.501},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-12 00:00:00"},{"dt":1478919600,"main":{"temp":-4.15,"temp_min":-4.15,"temp_max":-4.15,"pressure":1036.11,"sea_level":1040.86,"grnd_level":1036.11,"humidity":66,"temp_kf":0},"weather":[{"id":803,"main":"Clouds","description":"überwiegend bewölkt","icon":"04n"}],"clouds":{"all":68},"wind":{"speed":1.33,"deg":264.5},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-12 03:00:00"},{"dt":1478930400,"main":{"temp":-2.84,"temp_min":-2.84,"temp_max":-2.84,"pressure":1036.54,"sea_level":1041.34,"grnd_level":1036.54,"humidity":87,"temp_kf":0},"weather":[{"id":803,"main":"Clouds","description":"überwiegend bewölkt","icon":"04n"}],"clouds":{"all":64},"wind":{"speed":1.27,"deg":221.509},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-12 06:00:00"}]}
---]=====]
-    local output = '{"city":{"id":2911298,"name":"Hamburg","coord":{"lon":10,"lat":53.549999},"country":"DE","population":0,"sys":{"population":0}},"cod":"200","message":0.0052,"cnt":8,"list":[{"dt":1478854800,"main":{"temp":-4.59,"temp_min":-5.53,"temp_max":-4.59,"pressure":1027.75,"sea_level":1032.56,"grnd_level":1027.75,"humidity":81,"temp_kf":0.93},"weather":[{"id":800,"main":"Clear","description":"klarer Himmel","icon":"02d"}],"clouds":{"all":8},"wind":{"speed":1.39,"deg":23.5009},"rain":{},"snow":{},"sys":{"pod":"d"},"dt_txt":"2016-11-11 09:00:00"},{"dt":1478865600,"main":{"temp":-1.65,"temp_min":-2.35,"temp_max":-1.65,"pressure":1029.83,"sea_level":1034.54,"grnd_level":1029.83,"humidity":87,"temp_kf":0.7},"weather":[{"id":800,"main":"Clear","description":"klarer Himmel","icon":"01d"}],"clouds":{"all":0},"wind":{"speed":1.41,"deg":359.502},"rain":{},"snow":{},"sys":{"pod":"d"},"dt_txt":"2016-11-11 12:00:00"},{"dt":1478876400,"main":{"temp":-6.78,"temp_min":-7.25,"temp_max":-6.78,"pressure":1031.38,"sea_level":1036.08,"grnd_level":1031.38,"humidity":79,"temp_kf":0.47},"weather":[{"id":800,"main":"Clear","description":"klarer Himmel","icon":"01d"}],"clouds":{"all":0},"wind":{"speed":1.27,"deg":305.005},"rain":{},"snow":{},"sys":{"pod":"d"},"dt_txt":"2016-11-11 15:00:00"},{"dt":1478887200,"main":{"temp":-10.48,"temp_min":-10.71,"temp_max":-10.48,"pressure":1032.95,"sea_level":1037.84,"grnd_level":1032.95,"humidity":61,"temp_kf":0.23},"weather":[{"id":801,"main":"Clouds","description":"ein paar Wolken","icon":"02n"}],"clouds":{"all":12},"wind":{"speed":1.32,"deg":322.004},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-11 18:00:00"},{"dt":1478898000,"main":{"temp":-11.86,"temp_min":-11.86,"temp_max":-11.86,"pressure":1034.41,"sea_level":1039.29,"grnd_level":1034.41,"humidity":60,"temp_kf":0},"weather":[{"id":500,"main":"Rain","description":"leichter Regen","icon":"10n"}],"clouds":{"all":0},"wind":{"speed":1.31,"deg":349.501},"rain":{"3h":0.005},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-11 21:00:00"},{"dt":1478908800,"main":{"temp":-9.52,"temp_min":-9.52,"temp_max":-9.52,"pressure":1035.46,"sea_level":1040.38,"grnd_level":1035.46,"humidity":56,"temp_kf":0},"weather":[{"id":802,"main":"Clouds","description":"überwiegend bewölkt","icon":"03n"}],"clouds":{"all":44},"wind":{"speed":1.32,"deg":306.501},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-12 00:00:00"},{"dt":1478919600,"main":{"temp":-4.15,"temp_min":-4.15,"temp_max":-4.15,"pressure":1036.11,"sea_level":1040.86,"grnd_level":1036.11,"humidity":66,"temp_kf":0},"weather":[{"id":803,"main":"Clouds","description":"überwiegend bewölkt","icon":"04n"}],"clouds":{"all":68},"wind":{"speed":1.33,"deg":264.5},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-12 03:00:00"},{"dt":1478930400,"main":{"temp":-2.84,"temp_min":-2.84,"temp_max":-2.84,"pressure":1036.54,"sea_level":1041.34,"grnd_level":1036.54,"humidity":87,"temp_kf":0},"weather":[{"id":803,"main":"Clouds","description":"überwiegend bewölkt","icon":"04n"}],"clouds":{"all":64},"wind":{"speed":1.27,"deg":221.509},"rain":{},"snow":{},"sys":{"pod":"n"},"dt_txt":"2016-11-12 06:00:00"}]}'
+
     forecast = nil
     if (output:starts_with('{')) then
         local obj, pos, err = JSON.decode (output, 1, nil)
@@ -578,11 +577,12 @@ end -- draw_cairo_dot
 -- draw the temp graph from the forecast data
 --
 function draw_temp_graph(cr)
-    local function calc_y(temp, max_temp)
-        -- TODO
-        -- 1. Wie viel Grad ist das mehr als min_temp?
-        -- 2. Das dann auf die Scale von 0 bis 100 bringen (100px sind die Linien auseinander)
-        return FORECAST_BUTTOM_LINE - math.round(temp * (FORECAST_BUTTOM_LINE - FORECAST_TOP_LINE) / max_temp)
+    local function calc_y(temp)
+        local min_temp, max_temp = forecast_min_max_temp_rounded()
+        local full_temp_diff = math.abs(max_temp - min_temp)
+        local temp_diff = math.abs(temp - min_temp)
+        local val = math.round(temp_diff * (FORECAST_BUTTOM_LINE - FORECAST_TOP_LINE) / full_temp_diff)
+        return FORECAST_BUTTOM_LINE - val
     end
 
     cairo_set_line_width(cr, 1);
@@ -590,11 +590,10 @@ function draw_temp_graph(cr)
     cairo_set_dash(cr, {5, 3}, 0, 1)
     cairo_set_source_rgba(cr, rgb_to_r_g_b(0xEF5A29, 1))
 
-    local _, max_temp = forecast_min_max_temp_rounded()
     local prev_p = {}
     local point = { x = 122, y = FORECAST_BUTTOM_LINE }
     for _, temp in ipairs(forecast_temp_values()) do
-        point.y = calc_y(temp, max_temp)
+        point.y = calc_y(temp)
         draw_cairo_dot(cr, point.x, point.y, 3)
         if prev_p.x and prev_p.y then
             cairo_set_line_width(cr, 1);
