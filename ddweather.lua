@@ -180,7 +180,7 @@ function fetch_forecast()
     if city == nil then
         city = API_PARAMS['city']
     end
-    
+
     local url = string.format("http://api.openweathermap.org/data/%s/forecast?q=%s&units=%s&lang=%s&cnt=%s&APPID=%s",
         API_PARAMS['version'],
         city,
@@ -645,7 +645,7 @@ end
 --
 function draw_rain_graph(cr)
     local function calc_y(rain)
-        -- TODO vielleicht besser 1px pro mm Regen?
+        -- TODO vielleicht besser 1px pro 1mm Regen?
         local _, max_rain = forecast_max_wind_rounded()
         return FORECAST_BUTTOM_LINE - math.round(rain * (FORECAST_BUTTOM_LINE - FORECAST_TOP_LINE) / 10)
     end
